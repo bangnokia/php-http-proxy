@@ -8,8 +8,8 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 // get user and password from command line
 $options = getopt('u:p:port:');
-$username = $options['u'];
-$password = $options['p'];
+$username = $options['u'] ?? '';
+$password = $options['p'] ?? '';
 
 // Create a TCP worker.
 $worker = new Worker('tcp://0.0.0.0:6969');
