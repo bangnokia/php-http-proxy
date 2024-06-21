@@ -7,12 +7,13 @@ use Workerman\Connection\AsyncTcpConnection;
 require_once __DIR__ . '/vendor/autoload.php';
 
 // get user and password from command line
-$options = getopt('u:p:port:');
+$options = getopt('u:p:P:');
 $username = $options['u'] ?? '';
 $password = $options['p'] ?? '';
+$port = $options['P'] ?? 6969;
 
 // Create a TCP worker.
-$worker = new Worker('tcp://0.0.0.0:6969');
+$worker = new Worker('tcp://0.0.0.0:' . $port);
 $worker->count = 4;
 $worker->name = 'php-http-proxy';
 
