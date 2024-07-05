@@ -1,5 +1,7 @@
 # PHP Http proxy
 
+This is for my personal use, pull request is not welcome 🤣.
+
 ## Install
 ```bash
 composer install
