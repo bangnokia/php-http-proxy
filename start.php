@@ -14,7 +14,7 @@ $port = $options['P'] ?? 6969;
 
 // Create a TCP worker.
 $worker = new Worker('tcp://0.0.0.0:' . $port);
-$worker->count = 4;
+$worker->count = 7;
 $worker->name = 'php-http-proxy';
 
 // Emitted when data received from client.
