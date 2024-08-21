@@ -22,11 +22,15 @@ $worker->onMessage = function (TcpConnection $connection, string $buffer) use ($
     if ($username && $password) {
         if (strpos($buffer, 'Proxy-Authorization') !== false) {
             // find the base64 encoded string from buffer
-            preg_match('/Proxy-Authorization: Basic (.*)\r\n/', $buffer, $matches);
-            $auth = base64_decode($matches[1]);
-            $auth = explode(':', $auth);
+            if (preg_match('/Proxy-Authorization: Basic (.*)\r\n/', $buffer, $matches)) {
+                $auth = base64_decode($matches[1]);
+                $auth = explode(':', $auth);
 
-            if ($auth[0] !== $username || $auth[1] !== $password) {
+                if ($auth[0] !== $username || $auth[1] !== $password) {
+                    $connection->close();
+                    return;
+                }
+            } else {
                 $connection->close();
                 return;
             }
@@ -40,12 +44,18 @@ $worker->onMessage = function (TcpConnection $connection, string $buffer) use ($
     $parsedUrl = parse_url($address);
 
     if (!isset($parsedUrl['host'])) {
+        $connection->close();
         return;
     }
 
-    $address = $parsedUrl['host'] . ":" . $parsedUrl['port'] ?? 80;
+    $address = $parsedUrl['host'] . ':' . ($parsedUrl['port'] ?? 80);
 
     $remoteConnection = new AsyncTcpConnection("tcp://$address");
+
+    $remoteConnection->onError = function($remoteConnection, $code, $msg) use ($connection) {
+        $connection->send("HTTP/1.1 502 Bad Gateway\r\n\r\nConnection failed: $msg");
+        $connection->close();
+    };
 
     if ($method !== 'CONNECT') {
         $remoteConnection->send($buffer);
